@@ -1,0 +1,461 @@
+package com.example.miperfil
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.colorResource
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.graphicsLayer
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.LocationOn
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            MaterialTheme {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    ProfileScreen()
+                }
+            }
+        }
+    }
+}
+data class Lenguaje(
+    val nombre: String,
+    val iconRes: Int
+)
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun ProfileScreenPreview() {
+    MaterialTheme {
+        ProfileScreen()
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileScreen() {
+    var clickCount by remember { mutableStateOf(0) }
+    val context = LocalContext.current
+    Scaffold(
+
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    Toast.makeText(
+                        context,
+                        "Regaleme un punto profeeeee",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
+                containerColor = colorResource(id = R.color.RB)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Agregar"
+                )
+            }
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
+//  PORTADA Y FOTO DE PERFIL
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                // Imagen de Portada
+                Image(
+                    painter = painterResource(id = R.drawable.portada),
+                    contentDescription = "Foto de portada",
+                    contentScale = ContentScale.FillWidth,
+                    alignment = Alignment.TopCenter,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                )
+
+                // (Tarjeta UPP estilo píldora + Botón)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Tarjeta UPP
+                    Surface(
+                        shape = CircleShape,
+                        color = Color(0xCC2B2D3A),
+                        shadowElevation = 4.dp
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(start = 6.dp, top = 5.dp, end = 14.dp, bottom = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = Color.White,
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = "UPP",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = Color(0xFF030B4B)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Column {
+                                Text(
+                                    text = "Universidad Politécnica",
+                                    color = Color.White,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "de Pachuca",
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    fontSize = 9.sp
+                                )
+                            }
+                        }
+                    }
+
+                    // Botón Compartir
+                    Surface(
+                        shape = CircleShape,
+                        color = Color(0xCC2B2D3A),
+                        shadowElevation = 4.dp,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        IconButton(
+                            onClick = { /* Acción de compartir */ }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Compartir",
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Foto de Perfil
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 16.dp)
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = Color.Blue,
+                        shadowElevation = 4.dp,
+                        modifier = Modifier.size(96.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .clip(CircleShape)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.foto_perfil),
+                                contentDescription = "Foto de perfil",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .graphicsLayer(
+                                        scaleX = 1.8f,
+                                        scaleY = 1.6f,
+                                        translationX = -46f,
+                                        translationY = 0f
+                                    )
+                            )
+                        }
+                    }
+
+                    // Icono de Cámara
+                    Surface(
+                        shape = CircleShape,
+                        color = colorResource(id = R.color.RB),
+                        modifier = Modifier
+                            .size(28.dp)
+                            .align(Alignment.BottomEnd)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.CameraAlt,
+                                contentDescription = "Cambiar foto",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+            //  SECCIÓN DE NOMBRE Y BIOGRAFÍA
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-12).dp)
+                    .padding(horizontal = 16.dp)
+            ) {
+                // Insignia de la carrera
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color(0xFFF0E6FF)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "🎓", fontSize = 12.sp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "UPP Software",
+                                color = colorResource(id = R.color.RB),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Nombre + Check de verificación
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Aaron Escorza",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Verificado",
+                        tint = colorResource(id = R.color.RB),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Subtítulo / Rol
+                Text(
+                    text = "Ingeniero en Software | Desarrollador Mobile & Web",
+                    color = colorResource(id = R.color.RB),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Biografía
+                Text(
+                    text = "Desarrollador Android novato, amo la F1, al Verstappen y que se joda Norris. No se le mucho a esto pero lo intento :)",
+                    color = Color.Gray,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 3.Lenguajes de programación
+
+            val misLenguajes = listOf(
+                Lenguaje("Python", R.drawable.ic_python),
+                Lenguaje("Java", R.drawable.ic_java),
+                Lenguaje("Kotlin", R.drawable.ic_kotlin),
+                Lenguaje("C#", R.drawable.ic_csharp),
+                Lenguaje("C++", R.drawable.ic_cpp),
+
+                Lenguaje("JavaScript", R.drawable.ic_javascript),
+                Lenguaje("TypeScript", R.drawable.ic_typescript),
+                Lenguaje("PHP", R.drawable.ic_php),
+                Lenguaje("SQL", R.drawable.ic_sql),
+                Lenguaje("HTML/CSS", R.drawable.ic_html)
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                // Header de la sección (Título + Desliza)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Code,
+                            contentDescription = null,
+                            tint = colorResource(id = R.color.RB),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "LENGUAJES DE PROGRAMACIÓN",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = colorResource(id = R.color.RB),
+                            letterSpacing = 0.5.sp
+                        )
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Desliza",
+                            fontSize = 12.sp,
+                            color = Color(0xFF8E8E93)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = null,
+                            tint = Color(0xFF8E8E93),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+
+
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(misLenguajes) { lenguaje ->
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            color = Color(0xFFF2ECFB)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Image(
+                                    painter = painterResource(id = lenguaje.iconRes),
+                                    contentDescription = lenguaje.nombre,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = lenguaje.nombre,
+                                    color = Color.Black,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 4. Mapa
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            ) {
+                if (LocalInspectionMode.current) {
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.LightGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("📍 Vista Previa del Mapa ", color = Color.DarkGray)
+                    }
+                } else {
+
+                    val ubicacion = LatLng(19.9798144, -98.6846703)
+                    val cameraPositionState = rememberCameraPositionState {
+                        position = CameraPosition.fromLatLngZoom(ubicacion, 15f)
+                    }
+
+                    GoogleMap(
+                        modifier = Modifier.fillMaxSize(),
+                        cameraPositionState = cameraPositionState
+                    ) {
+                        Marker(
+                            state = MarkerState(position = ubicacion),
+                            title = "Universidad Politécnica de Pachuca",
+                            snippet = "Pachuca de Soto, Hidalgo"
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
